@@ -1,0 +1,37 @@
+name: Dataset smoke test
+on: [push, pull_request]
+
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          lfs: true          # pulls large JSONLs tracked by Git LFS
+
+      - name: Install Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Quick dataset check
+        run: |
+          python - <<'PY'
+          import pathlib, sys, json
+
+          for path in ("data/final/train_split.jsonl",
+                       "data/final/val_split.jsonl"):
+              p = pathlib.Path(path)
+              if not p.exists() or p.stat().st_size == 0:
+                  sys.exit(f"❌ {path} missing or empty")
+
+              with p.open() as f:
+                  try:
+                      json.loads(f.readline())
+                  except Exception as e:
+                      sys.exit(f"❌ {path} first line not valid JSON: {e}")
+
+          print("✅ dataset present and non-empty")
+          PY
+
