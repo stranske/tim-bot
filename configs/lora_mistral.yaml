@@ -1,0 +1,21 @@
+# configs/lora_mistral.yaml
+base_model: mistralai/Mistral-7B-Instruct-v0.2
+
+dataset:
+  train: data/final/train_split.jsonl
+  val:   data/final/val_split.jsonl
+  field: text            # JSONL field that holds the prompt/response combined
+
+lora:
+  r: 8
+  alpha: 16
+  dropout: 0.1
+  target_modules: ["q_proj","k_proj","v_proj","o_proj",
+                   "gate_proj","up_proj","down_proj"]
+
+training:
+  epochs: 3
+  batch_size: 8
+  lr: 2e-4
+  eval_steps: 200
+  output_dir: checkpoints/mistral-tim-lora
